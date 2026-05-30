@@ -1,0 +1,1 @@
+I really love Firebird, but it doesn't work on the new Windows versions. So, I decided to write a browser that looks like Firebird and works on the new Windows versions. It's not commercial, just out of my sincere love for Firebird.
