@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Mozilla Firebird</title>
+
+<link rel="stylesheet" href="firebird.css">
+</head>
+<body>
+
+<div id="menuBar">
+    <span>File</span>
+    <span>Edit</span>
+    <span>View</span>
+    <span>Go</span>
+    <span>Bookmarks</span>
+    <span>Tools</span>
+    <span>Help</span>
+</div>
+
+<div id="toolbar">
+    <button onclick="back()">←</button>
+    <button onclick="forward()">→</button>
+    <button onclick="home()">🏠</button>
+    <button onclick="bookmark()">★</button>
+
+    <input
+        id="url"
+        placeholder="Введите адрес или запрос"
+        onkeydown="if(event.key==='Enter') go()"
+    >
+
+    <button onclick="go()">Go</button>
+</div>
+
+<div id="bookmarksBar">
+    Mozilla Firebird Help |
+    User Support Forum |
+    Plug-in FAQ
+</div>
+
+<div id="content">
+    <webview id="view"></webview>
+</div>
+
+<div id="statusBar">
+    Done
+</div>
+
+<script>
+const view = document.getElementById("view");
+
+let historyStack = [];
+let historyIndex = -1;
+
+function navigate(url) {
+    view.src = url;
+
+    historyStack = historyStack.slice(
+        0,
+        historyIndex + 1
+    );
+
+    historyStack.push(url);
+    historyIndex++;
+}
+
+function go() {
+    let input =
+        document.getElementById("url")
+        .value
+        .trim();
+
+    if (!input) return;
+
+    let url;
+
+    const looksLikeUrl =
+        input.includes(".") &&
+        !input.includes(" ");
+
+    if (looksLikeUrl) {
+        if (!input.startsWith("http")) {
+            url = "https://" + input;
+        } else {
+            url = input;
+        }
+    } else {
+        url =
+        "https://duckduckgo.com/?q=" +
+        encodeURIComponent(input);
+    }
+
+    navigate(url);
+}
+
+function back() {
+    if (historyIndex > 0) {
+        historyIndex--;
+        view.src = historyStack[historyIndex];
+    }
+}
+
+function forward() {
+    if (
+        historyIndex <
+        historyStack.length - 1
+    ) {
+        historyIndex++;
+        view.src = historyStack[historyIndex];
+    }
+}
+
+function bookmark() {
+    const url = view.src;
+
+    let bookmarks =
+        JSON.parse(
+            localStorage.getItem("bookmarks")
+            || "[]"
+        );
+
+    if (!bookmarks.includes(url)) {
+        bookmarks.push(url);
+
+        localStorage.setItem(
+            "bookmarks",
+            JSON.stringify(bookmarks)
+        );
+
+        alert("Добавлено в закладки");
+    }
+}
+
+
+
+function home() {
+    const path = require('path');
+    const startPage = path.join(__dirname, "start.html");
+    view.src = "file://" + startPage;
+}
+
+home();
+</script>
+
+</body>
+</html>
